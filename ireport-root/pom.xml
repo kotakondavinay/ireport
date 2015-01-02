@@ -74,6 +74,5 @@
 		<module>ireport-twitter</module>
 		<module>ireport-classification</module>
 		<module>ireport-telegram</module>
-		<module>common-report</module>
 	</modules>
 </project>
