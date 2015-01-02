@@ -15,6 +15,7 @@
 		<joda.time.version>1.6.2</joda.time.version>
 		<twitter.core.version>3.0.5</twitter.core.version>
 		<storm.version>0.8.1</storm.version>
+		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -51,6 +52,12 @@
         	<groupId>storm</groupId>
             <artifactId>storm</artifactId>
             <version>${storm.version}</version>
+        </dependency>
+        <dependency>
+        	<groupId>junit</groupId>
+        	<artifactId>junit</artifactId>
+        	<version>${junit.version}</version>
+        	<scope>test</scope>
         </dependency>
 	</dependencies>
 	
