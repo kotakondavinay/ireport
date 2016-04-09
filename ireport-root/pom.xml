@@ -13,8 +13,6 @@
 		<slf4j.version>1.6.6</slf4j.version>
 		<guava.version>13.0.1</guava.version>
 		<joda.time.version>1.6.2</joda.time.version>
-		<twitter.core.version>3.0.5</twitter.core.version>
-		<storm.version>0.8.1</storm.version>
 		<junit.version>4.11</junit.version>
 	</properties>
 	<dependencies>
@@ -38,21 +36,6 @@
 			<artifactId>joda-time</artifactId>
 			<version>${joda.time.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.twitter4j</groupId>
-			<artifactId>twitter4j-core</artifactId>
-			<version>${twitter.core.version}</version>
-		</dependency>
-		<dependency>
-        	<groupId>org.twitter4j</groupId>
-            <artifactId>twitter4j-stream</artifactId>
-            <version>${twitter.core.version}</version>
-        </dependency>
-        <dependency>
-        	<groupId>storm</groupId>
-            <artifactId>storm</artifactId>
-            <version>${storm.version}</version>
-        </dependency>
         <dependency>
         	<groupId>junit</groupId>
         	<artifactId>junit</artifactId>
@@ -66,20 +49,16 @@
 			<id>clojars.org</id>
 			<url>http://clojars.org/repo</url>
 		</repository>
-		<repository>
-			<id>twitter4j.org</id>
-			<name>twitter4j.org Repository</name>
-			<url>http://twitter4j.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
 	</repositories>
 	<modules>
 		<module>common-ireport</module>
 		<module>ireport-webapp</module>
-		<module>ireport-twitter</module>
+		<!--module>ireport-twitter</module-->
 		<module>ireport-classification</module>
 		<module>ireport-telegram</module>
+                <module>ireport-rest</module>
+                <module>ireport-producer</module>
+               <module>ireport-storm</module>
+               <module>ireport-hadoop</module>
 	</modules>
 </project>

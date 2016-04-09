@@ -1,29 +1,30 @@
-package com.ireport.topology;
+package com.ireport.twitter.storm.topology;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ireport.topology.bolts.TwitterSampleTweetsBolt;
-import com.ireport.topology.spouts.TwitterPublicTopicsSpout;
+import com.ireport.twitter.storm.topology.bolts.TwitterTopicClassifierBolt;
+import com.ireport.twitter.storm.topology.spouts.TwitterPublicTopicsQuerySpout;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
 
-public class IReportTwitterTopology {
+
+public class IReportTwitterTopologyForTopics {
 	private static final Logger logger = LoggerFactory
-			.getLogger(IReportTwitterTopology.class);
-	private static final String IREPORT_TWITTER_TOPO = "IREPORT_TWITTER_TOPO";
+			.getLogger(IReportTwitterTopologyForTopics.class);
+	private static final String IREPORT_TWITTER_TOPO = "IREPORT_TWITTER_TOPO1";
 
 	public static void main(String args[]) {
 		Config conf = new Config();
 		conf.setMessageTimeoutSecs(120);
 		TopologyBuilder topology = new TopologyBuilder();
-		topology.setSpout("TwitterPublicTopicsSpout",
-				new TwitterPublicTopicsSpout());
-		topology.setBolt("TwitterSampleTweetsBolt",
-				new TwitterSampleTweetsBolt()).shuffleGrouping(
-				"TwitterPublicTopicsSpout");
+		topology.setSpout("TwitterPublicTopicsQuerySpout",
+				new TwitterPublicTopicsQuerySpout());
+		topology.setBolt("TwitterTopicClassifierBolt",
+				new TwitterTopicClassifierBolt()).shuffleGrouping(
+				"TwitterPublicTopicsQuerySpout");
 
 		final LocalCluster localCluster = new LocalCluster();
 		localCluster.submitTopology(IREPORT_TWITTER_TOPO, conf,

@@ -1,9 +1,5 @@
-package com.ireport.topology.bolts;
+package com.ireport.twitter.storm.topology.bolts;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Map;
 
 import twitter4j.Status;
@@ -27,7 +23,6 @@ public class TwitterSampleTweetsBolt extends BaseRichBolt {
 	 */
 	private static final long serialVersionUID = -6584626469589835291L;
 	private OutputCollector collector;
-	private FileWriter fileWriter = null;
 
 	public TwitterSampleTweetsBolt() {
 	}
@@ -44,21 +39,7 @@ public class TwitterSampleTweetsBolt extends BaseRichBolt {
 		String lang = tweet.getUser().getLang();
 		String text = tweet.getText().replaceAll("\\p{Punct}", " ")
 				.toLowerCase();
-		//collector.emit(new Values(lang, text));
-		try {
-			this.fileWriter = new FileWriter("/opt/bolt.txt", true);
-			Writer output = new BufferedWriter(this.fileWriter);
-			output.append(text);
-			output.append("\n");
-			output.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			logger.info("tweet failed "+text);
-			e.printStackTrace();
-			collector.fail(input);
-		}
-		collector.ack(input);
-		logger.info("Tweet: " + text);
+		collector.emit(new Values(lang, text));
 		logger.info("Tweet: " + text);
 	}
 

@@ -1,4 +1,4 @@
-package com.ireport.topology.spouts;
+package com.ireport.twitter.storm.topology.spouts;
 
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -54,12 +54,7 @@ public class TwitterPublicTopicsSpout extends BaseRichSpout {
 
 			@Override
 			public void onStatus(Status tweet) {
-				if(!tweet.isRetweet()) {
-					if(tweet.getURLEntities().length == 0) {
-						//logger.info("tweet: "+tweet);
-						queue.offer(tweet);	
-					}
-				}
+				queue.offer(tweet);
 			}
 
 			@Override
@@ -82,18 +77,16 @@ public class TwitterPublicTopicsSpout extends BaseRichSpout {
 		twitterStream = factory.getInstance();
 		twitterStream.addListener(listener);
 		FilterQuery fq = new FilterQuery();
-		String keywords[] = { "politics"};
+		String keywords[] = { "politics", "problem", "worst", "pathetic",
+				"health", "India", "USA", "resolve", "poor service",
+				"worst behaviour", "not good" };
 		fq.track(keywords);
-		String languages[] = new String[]{ "en"};
-		fq.track(keywords);
-	
-		fq.language(languages);
 		// Filter by region:
 		// For example San Fransisko or New York
 		// -122.75,36.8,-121.75,37.8,-74,40,-73,41
-		/*double[][] loc = { { -122.75, 36.8 }, { -121.75, 37.8 }, { -74, 40 },
+		double[][] loc = { { -122.75, 36.8 }, { -121.75, 37.8 }, { -74, 40 },
 				{ -73, 41 } };
-		fq.locations(loc);*/
+		fq.locations(loc);
 		twitterStream.filter(fq);
 		// twitterStream.sample();
 	}
