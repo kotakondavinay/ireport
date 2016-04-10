@@ -7,6 +7,7 @@
     {"name":"occurance_spot", "type":"string", "doc":"The customer"},
     {"name":"details", "type":"string", "doc":"The product"},
     {"name":"reporter_location", "type":"string"},
+    {"name":"raw_msg", "type":"string"},
     {"name":"priority",
      "type":{"type":"enum",
 	     "name":"priority_type",

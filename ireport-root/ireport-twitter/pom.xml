@@ -6,6 +6,43 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>ireport-twitter</artifactId>
+   <dependencies>
+     <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                        <version>1.6.6</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <version>1.6.6</version>
+                </dependency>
+                <dependency>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                        <version>13.0.1</version>
+                </dependency>
+                <dependency>
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                        <version>1.6.2</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.twitter4j</groupId>
+                        <artifactId>twitter4j-core</artifactId>
+                        <version>3.0.5</version>
+                </dependency>
+                <dependency>
+                        <groupId>org.twitter4j</groupId>
+                        <artifactId>twitter4j-stream</artifactId>
+                        <version>3.0.5</version>
+                </dependency>
+                <dependency>
+                        <groupId>storm</groupId>
+                        <artifactId>storm</artifactId>
+                        <version>0.8.1</version>
+                </dependency>
+   </dependencies>
   
   	<build>
 		<plugins>

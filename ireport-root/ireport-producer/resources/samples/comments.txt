@@ -1,4 +1,4 @@
-#Worst service @xyz hotel, Bangalore <description1> &HIGH  
-#Bad roads @Bentonvelle, USA $description2 &LOW
-#Facing harrassment @Bus stop, Kukatpally, Hyderabad $description3 &IMERGENCY
-#High fees @ worst quality @xyz school, Hyderabad $description4 &
+#Worst service @xyz hotel, Bangalore <description1><HIGH>
+#Bad roads @Bentonvelle, USA <description2><HIGH>
+#Facing harrassment @Bus stop, Kukatpally, Hyderabad <description3><EMERGENCY>
+#High fees @ worst quality @xyz school, Hyderabad <description4><LOW>

@@ -6,35 +6,34 @@ import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
-public class MessageParserUtil {
-	private static final String MSG_PATTERN = "#(.*?)@(.*?)<(.*?)>";
+import com.ireport.kafka.producer.Constants;
+
+public class MessageParserUtil implements Constants {
 	private static Pattern pattern;
 	private static Matcher matcher;
 
 	@SuppressWarnings({ "unchecked", "serial" })
-	public static JSONObject parseMsg(String msg) {
+	public static JSONObject parseMsg(final String msg) {
 		pattern = Pattern.compile(MSG_PATTERN);
 		matcher = pattern.matcher(msg);
 		JSONObject jsonObj = new JSONObject();
 		if (matcher.find()) {
 			jsonObj.putAll(new HashMap<String, String>() {
 				{
-					put("issue", matcher.group(1));
-					put("occurance_spot", matcher.group(2));
-					put("details", matcher.group(3));
-					put("reporter_location", "Need to fetch from ip address");
+					put(ISSUE, matcher.group(1));
+					put(OCCURANCE_SPOT, matcher.group(2));
+					put(DETAILS, matcher.group(3));
+					put(REPORTER_LOCATION, "Need to fetch from ip address");
+					if (matcher.group(4) == null || matcher.group(4).equals("")) {
+						put(PRIORITY_TYPE, "NORMAL");
+					} else {
+						put(PRIORITY_TYPE, matcher.group(4));
+					}
+					put(RAW_MSG, msg);
 				}
 			});
-			System.out.println(matcher.group(1) + " : " + matcher.group(2)
-					+ " : " + matcher.group(3));
 		}
 		return jsonObj;
-	}
-
-	public static void main(String[] args) {
-		JSONObject parseMsg = MessageParserUtil
-				.parseMsg("#Worst service @xyz hotel, Bangalore <description1>");
-		System.out.println(" JSON Object: " + parseMsg);
 	}
 
 }
