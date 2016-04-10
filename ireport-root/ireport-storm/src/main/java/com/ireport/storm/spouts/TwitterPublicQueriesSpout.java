@@ -45,7 +45,6 @@ public class TwitterPublicQueriesSpout extends BaseRichSpout {
 	}
 
 	public TwitterPublicQueriesSpout() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

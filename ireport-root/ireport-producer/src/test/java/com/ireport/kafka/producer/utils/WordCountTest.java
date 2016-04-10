@@ -1,4 +1,4 @@
-package com.ireport.kafka.producer.parser;
+package com.ireport.kafka.producer.utils;
 
 import java.io.BufferedWriter;
 import java.io.File;
