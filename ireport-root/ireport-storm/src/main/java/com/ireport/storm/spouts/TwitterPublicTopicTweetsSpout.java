@@ -26,7 +26,7 @@ import twitter4j.conf.ConfigurationBuilder;
 public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 
 	private static final int CAPACITY = 1000;
-
+	private boolean isTwitterEnvEnabled = false;
 	SpoutOutputCollector _collector;
 	LinkedBlockingQueue<Status> queue = null;
 	TwitterStream _twitterStream;
@@ -49,7 +49,7 @@ public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 	}
 
 	public TwitterPublicTopicTweetsSpout() {
-		// TODO Auto-generated constructor stub
+		isTwitterEnvEnabled = true;
 	}
 
 	@Override
@@ -87,29 +87,15 @@ public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 			}
 
 		};
-
-		/*
-		 * TwitterStreamFactory factory = new TwitterStreamFactory();
-		 * twitterStream = factory.getInstance();
-		 * twitterStream.addListener(listener); FilterQuery fq = new
-		 * FilterQuery(); String keywords[] = { "politics", "problem", "worst",
-		 * "pathetic", "health", "India", "USA", "resolve", "poor service",
-		 * "worst behaviour", "not good" }; fq.track(keywords); // Filter by
-		 * region: // For example San Fransisko or New York //
-		 * -122.75,36.8,-121.75,37.8,-74,40,-73,41 double[][] loc = { { -122.75,
-		 * 36.8 }, { -121.75, 37.8 }, { -74, 40 }, { -73, 41 } };
-		 * fq.locations(loc); twitterStream.filter(fq); //
-		 * twitterStream.sample();
-		 */
-
 		TwitterStream twitterStream = new TwitterStreamFactory(
 				new ConfigurationBuilder().setJSONStoreEnabled(true).build())
 				.getInstance();
-
-		twitterStream.addListener(listener);
-		twitterStream.setOAuthConsumer(consumerKey, consumerSecret);
-		AccessToken token = new AccessToken(accessToken, accessTokenSecret);
-		twitterStream.setOAuthAccessToken(token);
+		if (!isTwitterEnvEnabled) {
+			twitterStream.addListener(listener);
+			twitterStream.setOAuthConsumer(consumerKey, consumerSecret);
+			AccessToken token = new AccessToken(accessToken, accessTokenSecret);
+			twitterStream.setOAuthAccessToken(token);
+		}
 
 		if (keyWords.length == 0) {
 			twitterStream.sample();
@@ -127,8 +113,12 @@ public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 		if (ret == null) {
 			Utils.sleep(50);
 		} else {
-			_collector.emit(new Values(ret));
-
+			String sentence = ret.getText();
+			String delims = "[ .,?!]+";
+			String[] tokens = sentence.split(delims);
+			for (String token : tokens) {
+				_collector.emit(new Values(token));
+			}
 		}
 	}
 

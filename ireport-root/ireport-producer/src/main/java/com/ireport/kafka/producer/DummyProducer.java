@@ -12,6 +12,8 @@ import kafka.producer.ProducerConfig;
 import com.ireport.kafka.producer.parser.MessageParserUtil;
 
 public class DummyProducer {
+	private static final String SAMPLES_COMMENTS_TXT = "/Users/abatchu/Work/git/ireport_03122016/ireport/ireport-root/ireport-producer/resources/samples/comments.txt";
+
 	public static void main(String[] args) {
 		Properties props = new Properties();
 		props.put("metadata.broker.list", "localhost:9092");
@@ -21,9 +23,8 @@ public class DummyProducer {
 		props.put("request.required.acks", "1");
 		ProducerConfig config = new ProducerConfig(props);
 		Producer<String, String> producer = new Producer<String, String>(config);
-		try (BufferedReader br = new BufferedReader(
-				new FileReader(
-						"/Users/abatchu/Work/git/ireport_03122016/ireport/ireport-root/ireport-producer/resources/samples/comments.txt"))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(
+				SAMPLES_COMMENTS_TXT))) {
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				KeyedMessage<String, String> data = new KeyedMessage<String, String>(

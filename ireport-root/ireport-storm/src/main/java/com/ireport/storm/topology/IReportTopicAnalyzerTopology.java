@@ -2,7 +2,6 @@ package com.ireport.storm.topology;
 
 import org.apache.log4j.Logger;
 import org.apache.storm.Config;
-import org.apache.storm.starter.WordCountTopology.SplitSentence;
 import org.apache.storm.starter.bolt.IntermediateRankingsBolt;
 import org.apache.storm.starter.bolt.RollingCountBolt;
 import org.apache.storm.starter.bolt.TotalRankingsBolt;
@@ -10,7 +9,7 @@ import org.apache.storm.starter.util.StormRunner;
 import org.apache.storm.topology.TopologyBuilder;
 import org.apache.storm.tuple.Fields;
 
-import com.ireport.storm.spouts.TwitterPublicQueriesSpout;
+import com.ireport.storm.spouts.TwitterPublicTopicTweetsSpout;
 
 public class IReportTopicAnalyzerTopology {
 	private static final Logger LOG = Logger
@@ -23,13 +22,13 @@ public class IReportTopicAnalyzerTopology {
 	private final Config topologyConfig;
 	private final int runtimeInSeconds;
 
-	public IReportTopicAnalyzerTopology(String topologyName)
+	public IReportTopicAnalyzerTopology(String topologyName, String[] args)
 			throws InterruptedException {
 		builder = new TopologyBuilder();
 		this.topologyName = topologyName;
 		topologyConfig = createTopologyConfiguration();
 		runtimeInSeconds = DEFAULT_RUNTIME_IN_SECONDS;
-		createTopology();
+		createTopology(args);
 	}
 
 	private static Config createTopologyConfiguration() {
@@ -37,17 +36,27 @@ public class IReportTopicAnalyzerTopology {
 		return conf;
 	}
 
-	private void createTopology() throws InterruptedException {
+	private void createTopology(String[] args) throws InterruptedException {
 		String spoutId = "twitterSpout";
-		String sentenceSplitId = "sentenceSplitterBolt";
 		String counterId = "counter";
 		String intermediateRankerId = "intermediateRanker";
 		String totalRankerId = "finalRanker";
-		builder.setSpout(spoutId, new TwitterPublicQueriesSpout(), 5);
-		builder.setBolt(sentenceSplitId, new SplitSentence(), 8)
-				.shuffleGrouping(spoutId);
+		TwitterPublicTopicTweetsSpout spout = null;
+		String consumerKey = args[0];
+		String consumerSecret = args[1];
+		String accessToken = args[2];
+		String accessTokenSecret = args[3];
+
+		String[] keyWords = { "politics", "problem", "worst", "pathetic",
+				"health", "India", "resolve", "poor service",
+				"worst behaviour", "not good", "issue" };
+		double[][] loc = { { -122.75, 36.8 }, { -121.75, 37.8 }, { -74, 40 },
+				{ -73, 41 } };
+		spout = new TwitterPublicTopicTweetsSpout(consumerKey, consumerSecret,
+				accessToken, accessTokenSecret, keyWords, loc);
+		builder.setSpout(spoutId, spout, 5);
 		builder.setBolt(counterId, new RollingCountBolt(9, 3), 4)
-				.fieldsGrouping(sentenceSplitId, new Fields("word"));
+				.shuffleGrouping(spoutId);
 		builder.setBolt(intermediateRankerId,
 				new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(
 				counterId, new Fields("obj"));
@@ -56,8 +65,8 @@ public class IReportTopicAnalyzerTopology {
 	}
 
 	public void runLocally() throws InterruptedException {
-		StormRunner.runTopologyLocally(builder.createTopology(), topologyName,
-				topologyConfig, runtimeInSeconds);
+		StormRunner.runTopologyLocally(builder.createTopology(),
+				"local-ireport", topologyConfig, runtimeInSeconds);
 	}
 
 	public void runRemotely() throws Exception {
@@ -66,18 +75,18 @@ public class IReportTopicAnalyzerTopology {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String topologyName = "slidingWindowCounts";
-		if (args.length >= 1) {
-			topologyName = args[0];
-		}
+		String topologyName = null;
 		boolean runLocally = true;
-		if (args.length >= 2 && args[1].equalsIgnoreCase("remote")) {
+		if (args.length == 5) {
+			topologyName = args[4];
+		}
+		if (topologyName != null) {
 			runLocally = false;
 		}
 
 		LOG.info("Topology name: " + topologyName);
 		IReportTopicAnalyzerTopology rtw = new IReportTopicAnalyzerTopology(
-				topologyName);
+				topologyName, args);
 		if (runLocally) {
 			LOG.info("Running in local mode");
 			rtw.runLocally();

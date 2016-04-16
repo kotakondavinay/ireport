@@ -20,9 +20,6 @@ import twitter4j.conf.ConfigurationBuilder;
 
 @SuppressWarnings("serial")
 public class TwitterPublicQueriesSpout extends BaseRichSpout {
-
-	private static final int CAPACITY = 1000;
-
 	SpoutOutputCollector _collector;
 	String consumerKey;
 	String consumerSecret;
@@ -61,7 +58,6 @@ public class TwitterPublicQueriesSpout extends BaseRichSpout {
 		query.setLocale("en");
 		query.setLang("en");
 		query.setCount(100);
-		// query.since("");
 	}
 
 	@Override
@@ -69,8 +65,9 @@ public class TwitterPublicQueriesSpout extends BaseRichSpout {
 		try {
 			QueryResult queryResult = twitter.search(query);
 			for (Status s : queryResult.getTweets()) {
-				_collector.emit(new Values(" Geo: " + s.getGeoLocation()
-						+ " Tweet: " + s.getText()));
+				String tmp = " Geo: " + s.getGeoLocation() + " Tweet: "
+						+ s.getText();
+				_collector.emit(new Values(tmp));
 			}
 		} catch (TwitterException e) {
 			e.printStackTrace();
