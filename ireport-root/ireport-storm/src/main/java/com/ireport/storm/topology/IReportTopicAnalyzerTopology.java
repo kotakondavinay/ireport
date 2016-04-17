@@ -2,6 +2,16 @@ package com.ireport.storm.topology;
 
 import org.apache.log4j.Logger;
 import org.apache.storm.Config;
+import org.apache.storm.hdfs.bolt.HdfsBolt;
+import org.apache.storm.hdfs.bolt.format.DefaultFileNameFormat;
+import org.apache.storm.hdfs.bolt.format.DelimitedRecordFormat;
+import org.apache.storm.hdfs.bolt.format.FileNameFormat;
+import org.apache.storm.hdfs.bolt.format.RecordFormat;
+import org.apache.storm.hdfs.bolt.rotation.FileRotationPolicy;
+import org.apache.storm.hdfs.bolt.rotation.TimedRotationPolicy;
+import org.apache.storm.hdfs.bolt.sync.CountSyncPolicy;
+import org.apache.storm.hdfs.bolt.sync.SyncPolicy;
+import org.apache.storm.hdfs.common.rotation.MoveFileAction;
 import org.apache.storm.starter.bolt.IntermediateRankingsBolt;
 import org.apache.storm.starter.bolt.RollingCountBolt;
 import org.apache.storm.starter.bolt.TotalRankingsBolt;
@@ -41,6 +51,7 @@ public class IReportTopicAnalyzerTopology {
 		String counterId = "counter";
 		String intermediateRankerId = "intermediateRanker";
 		String totalRankerId = "finalRanker";
+		String hdfsBoltId = "hdfsBolt";
 		TwitterPublicTopicTweetsSpout spout = null;
 		String consumerKey = args[0];
 		String consumerSecret = args[1];
@@ -48,15 +59,17 @@ public class IReportTopicAnalyzerTopology {
 		String accessTokenSecret = args[3];
 
 		String[] keyWords = { "politics", "problem", "worst", "pathetic",
-				"health", "India", "resolve", "poor service",
-				"worst behaviour", "not good", "issue" };
+				"resolve", "poor service", "worst behaviour", "not good",
+				"issue", "frustrate", "disgust" };
 		double[][] loc = { { -122.75, 36.8 }, { -121.75, 37.8 }, { -74, 40 },
 				{ -73, 41 } };
 		spout = new TwitterPublicTopicTweetsSpout(consumerKey, consumerSecret,
 				accessToken, accessTokenSecret, keyWords, loc);
 		builder.setSpout(spoutId, spout, 5);
 		builder.setBolt(counterId, new RollingCountBolt(9, 3), 4)
-				.shuffleGrouping(spoutId);
+				.shuffleGrouping(spoutId, "streamA");
+		builder.setBolt(hdfsBoltId, createHDFSBolt()).shuffleGrouping(spoutId,
+				"streamB");
 		builder.setBolt(intermediateRankerId,
 				new IntermediateRankingsBolt(TOP_N), 4).fieldsGrouping(
 				counterId, new Fields("obj"));
@@ -72,6 +85,31 @@ public class IReportTopicAnalyzerTopology {
 	public void runRemotely() throws Exception {
 		StormRunner.runTopologyRemotely(builder.createTopology(), topologyName,
 				topologyConfig);
+	}
+
+	public HdfsBolt createHDFSBolt() {
+		// sync the filesystem after every 1k tuples
+		SyncPolicy syncPolicy = new CountSyncPolicy(1000);
+
+		// rotate files when they reach 5MB
+		FileRotationPolicy rotationPolicy = new TimedRotationPolicy(1.0f,
+				TimedRotationPolicy.TimeUnit.MINUTES);
+
+		FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath(
+				"/tmp/foo/").withExtension(".txt");
+
+		// use "|" instead of "," for field delimiter
+		RecordFormat format = new DelimitedRecordFormat()
+				.withFieldDelimiter("|");
+
+		return new HdfsBolt()
+				.withFsUrl("hdfs://localhost:9000")
+				.withFileNameFormat(fileNameFormat)
+				.withRecordFormat(format)
+				.withRotationPolicy(rotationPolicy)
+				.withSyncPolicy(syncPolicy)
+				.addRotationAction(
+						new MoveFileAction().toDestination("/tmp/dest2/"));
 	}
 
 	public static void main(String[] args) throws Exception {

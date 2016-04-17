@@ -87,22 +87,21 @@ public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 			}
 
 		};
-		TwitterStream twitterStream = new TwitterStreamFactory(
-				new ConfigurationBuilder().setJSONStoreEnabled(true).build())
-				.getInstance();
+		_twitterStream = new TwitterStreamFactory(new ConfigurationBuilder()
+				.setJSONStoreEnabled(true).build()).getInstance();
 		if (!isTwitterEnvEnabled) {
-			twitterStream.addListener(listener);
-			twitterStream.setOAuthConsumer(consumerKey, consumerSecret);
+			_twitterStream.addListener(listener);
+			_twitterStream.setOAuthConsumer(consumerKey, consumerSecret);
 			AccessToken token = new AccessToken(accessToken, accessTokenSecret);
-			twitterStream.setOAuthAccessToken(token);
+			_twitterStream.setOAuthAccessToken(token);
 		}
 
 		if (keyWords.length == 0) {
-			twitterStream.sample();
+			_twitterStream.sample();
 		} else {
 			FilterQuery query = new FilterQuery().track(keyWords);
 			query.locations(loc);
-			twitterStream.filter(query);
+			_twitterStream.filter(query);
 		}
 
 	}
@@ -114,10 +113,12 @@ public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 			Utils.sleep(50);
 		} else {
 			String sentence = ret.getText();
+			System.out.println(" Twitter tweet: " + sentence);
+			_collector.emit("streamB", new Values(sentence));
 			String delims = "[ .,?!]+";
 			String[] tokens = sentence.split(delims);
 			for (String token : tokens) {
-				_collector.emit(new Values(token));
+				_collector.emit("streamA", new Values(token));
 			}
 		}
 	}
@@ -144,7 +145,8 @@ public class TwitterPublicTopicTweetsSpout extends BaseRichSpout {
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		declarer.declare(new Fields("tweet"));
+		declarer.declareStream("streamA", new Fields("words"));
+		declarer.declareStream("streamB", new Fields("rawmsg"));
 	}
 
 }
